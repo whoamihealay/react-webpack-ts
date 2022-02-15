@@ -47,6 +47,7 @@ jspm_packages
 # production
 node_modules
 dist
+tsc
 .env.local
 .env.development.local
 .env.test.local

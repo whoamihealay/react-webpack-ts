@@ -3,6 +3,5 @@ module.exports = {
   theme: {
     extend: {},
   },
-  theme: { extend: {} },
-  plugins: [require("tailwindcss"), require("autoprefixer")],
+  plugins: [],
 };
