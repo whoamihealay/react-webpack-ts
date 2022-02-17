@@ -5,9 +5,6 @@ const br = require("./images/bottom-right.svg") as string;
 // eslint-disable-next-line global-require
 const tl = require("./images/top-left.svg") as string;
 
-// import br from "./images/bottom-right.svg";
-// import tl from "./images/top-left.svg";
-
 function App() {
   return (
     <>
