@@ -1,58 +1,72 @@
 const path = require("path");
-const HTMLWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const HTMLWebpackPlugin = require("html-webpack-plugin");
+const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+
+let mode = "development";
+const target = "web";
+const plugins = [
+  new CleanWebpackPlugin(),
+  new MiniCssExtractPlugin(),
+  new HTMLWebpackPlugin({ template: "./public/index.html" }),
+];
+
+if (process.env.NODE_ENV === "production") {
+  mode = "production";
+  plugins.push(new BundleAnalyzerPlugin());
+}
 
 module.exports = {
-  entry: {
-    "build-lib": "./src/index.tsx",
-    "build-lib.min": "./src/index.tsx",
+  mode,
+
+  entry: "./src/index.tsx",
+
+  output: {
+    path: path.resolve(__dirname, "dist"),
+    assetModuleFilename: "images/[hash][ext][query]",
   },
-  devServer: {
-    port: 3000,
-    compress: true,
-    static: path.resolve(__dirname, "public"),
-  },
+
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        use: "ts-loader",
-        exclude: /node_modules/,
+        test: /\.(s[ac]|c)ss$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: { publicPath: "" },
+          },
+          "css-loader",
+          "postcss-loader",
+        ],
       },
       {
-        test: /\.css$/,
-        include: path.resolve(__dirname, "src"),
-        use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"],
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        type: "asset",
+      },
+      {
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "ts-loader",
+        },
       },
     ],
   },
+
+  target,
+
+  plugins,
+
+  devtool: false,
+
   resolve: {
     extensions: [".js", ".ts", ".jsx", ".tsx"],
-    plugins: [new TsconfigPathsPlugin()],
   },
-  output: {
-    path: path.resolve(__dirname, "dist"),
-    filename: "[name].js",
-    libraryTarget: "umd",
-    library: "build",
-    umdNamedDefine: true,
+
+  devServer: {
+    port: 3000,
+    hot: true,
+    static: path.resolve(__dirname, "public"),
   },
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        include: /\.min\.js$/,
-      }),
-    ],
-  },
-  stats: {
-    all: undefined,
-    preset: "errors-only",
-  },
-  plugins: [
-    new HTMLWebpackPlugin({ template: "./public/index.html" }),
-    new MiniCssExtractPlugin(),
-  ],
 };
